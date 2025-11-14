@@ -1,7 +1,7 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/">
-        <file>resources/marked.min.js</file>
+        <file alias="resources/marked.min.js">resources/marked.min.js.txt</file>
         <file>resources/notes_style.css</file>
     </qresource>
 </RCC>

@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.30)
 include(FetchContent)
 add_library(mo2_notes SHARED)
 set_property(TARGET mo2_notes PROPERTY CXX_STANDARD 20)
-set(CMAKE_GENERATOR_PLATFORM x64)
 
 set(CMAKE_AUTORCC ON) # Will make the compiler read QRC file and skip the JS stuff.
 
@@ -15,7 +14,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(QMarkdownTextEdit)
 
 set_source_files_properties(
-        ${CMAKE_CURRENT_SOURCE_DIR}/resources/marked.min.js
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources/marked.min.js.txt
         PROPERTIES HEADER_FILE_ONLY TRUE
 )
 
@@ -42,7 +41,7 @@ mo2_configure_plugin(
         mo2_notes
         WARNINGS OFF
         PRIVATE_DEPENDS
-        boost uibase
+        boost
         Qt::WebEngineWidgets
 )
 mo2_install_target(mo2_notes)
