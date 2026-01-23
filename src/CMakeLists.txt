@@ -41,16 +41,19 @@ find_package(mo2-uibase CONFIG QUIET)
 
 target_link_libraries(mo2_notes PUBLIC qmarkdowntextedit)
 
-# Link mo2::uibase if found via find_package (CI), otherwise mo2_configure_plugin provides it
-if(TARGET mo2::uibase)
-    target_link_libraries(mo2_notes PUBLIC mo2::uibase)
-    # In CI, add the uibase subdirectory to includes for <iplugin.h> style includes
-    get_target_property(_uibase_includes mo2::uibase INTERFACE_INCLUDE_DIRECTORIES)
-    foreach(_inc ${_uibase_includes})
-        if(EXISTS "${_inc}/uibase")
-            target_include_directories(mo2_notes PUBLIC "${_inc}/uibase")
-        endif()
-    endforeach()
+# In CI, add uibase include directory for <iplugin.h> style includes
+# The headers are at CMAKE_INSTALL_PREFIX/include/uibase/
+foreach(_prefix ${CMAKE_PREFIX_PATH})
+    if(EXISTS "${_prefix}/include/uibase")
+        target_include_directories(mo2_notes PUBLIC "${_prefix}/include/uibase")
+        message(STATUS "Added uibase include: ${_prefix}/include/uibase")
+    endif()
+endforeach()
+
+# Also check CMAKE_INSTALL_PREFIX
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/include/uibase")
+    target_include_directories(mo2_notes PUBLIC "${CMAKE_INSTALL_PREFIX}/include/uibase")
+    message(STATUS "Added uibase include: ${CMAKE_INSTALL_PREFIX}/include/uibase")
 endif()
 
 mo2_configure_plugin(
