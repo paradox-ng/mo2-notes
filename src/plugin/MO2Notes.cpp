@@ -8,14 +8,16 @@ using namespace Qt::Literals::StringLiterals;
 bool MO2Notes::initPlugin(MOBase::IOrganizer* organizer)
 {
     m_Organizer = organizer;
-    // m_Organizer->onUserInterfaceInitialized([this](QMainWindow*) {
-    //     m_Organizer->onProfileChanged([this](MOBase::IProfile*, const MOBase::IProfile* newProfile) {
-    //         if (m_NotesWidget) {
-    //             const auto newPath = newProfile->absolutePath();
-    //             m_NotesWidget->setProfilePath(newPath);
-    //         }
-    //     });
-    // });
+    m_Organizer->onUserInterfaceInitialized([this](QMainWindow*) {
+        m_Organizer->onProfileChanged([this](MOBase::IProfile*, const MOBase::IProfile* newProfile) {
+            if (m_NotesWidget) {
+                // Save any pending changes to the current profile before switching
+                m_NotesWidget->saveNotes();
+                const auto newPath = newProfile->absolutePath();
+                m_NotesWidget->setProfilePath(newPath);
+            }
+        });
+    });
     return true;
 }
 

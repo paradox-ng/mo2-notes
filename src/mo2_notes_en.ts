@@ -4,22 +4,22 @@
 <context>
     <name>MO2Notes</name>
     <message>
-        <location filename="plugin/MO2Notes.cpp" line="34"/>
+        <location filename="plugin/MO2Notes.cpp" line="36"/>
         <source>A handy notes panel for MO2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="plugin/MO2Notes.cpp" line="44"/>
+        <location filename="plugin/MO2Notes.cpp" line="46"/>
         <source>Open in view mode by default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="plugin/MO2Notes.cpp" line="45"/>
+        <location filename="plugin/MO2Notes.cpp" line="47"/>
         <source>Open Notes tab on startup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="plugin/MO2Notes.cpp" line="73"/>
+        <location filename="plugin/MO2Notes.cpp" line="75"/>
         <source>Notes</source>
         <translation type="unfinished"></translation>
     </message>

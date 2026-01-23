@@ -21,8 +21,9 @@ public:
 
     void reloadStyles() const;
 
-private slots:
     void saveNotes();
+
+private slots:
 
     void onTextChanged();
 
