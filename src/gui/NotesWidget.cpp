@@ -415,6 +415,22 @@ void NotesWidget::setProfilePath(const QString& profilePath)
     setupMarkdownHighlighter();
 }
 
+void NotesWidget::setDefaultToViewMode(bool viewMode)
+{
+    if (viewMode && m_isEditMode) {
+        // Switch to view mode
+        m_isEditMode = false;
+        updatePreview();
+        m_stackedWidget->setCurrentWidget(m_webView);
+        m_toggleButton->setText("Edit Mode");
+    } else if (!viewMode && !m_isEditMode) {
+        // Switch to edit mode
+        m_isEditMode = true;
+        m_stackedWidget->setCurrentWidget(m_textEdit);
+        m_toggleButton->setText("View Mode");
+    }
+}
+
 void NotesWidget::reloadStyles() const
 {
     // Reload preview stylesheet

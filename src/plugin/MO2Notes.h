@@ -41,5 +41,6 @@ public:
 
 private:
     MOBase::IOrganizer* m_Organizer{};
+    IPanelInterface* m_PanelInterface{};
     NotesWidget* m_NotesWidget{};
 };

@@ -1,6 +1,8 @@
 #include "MO2Notes.h"
 #include "gui/NotesWidget.h"
 
+#include <QTimer>
+
 using namespace Qt::Literals::StringLiterals;
 
 bool MO2Notes::initPlugin(MOBase::IOrganizer* organizer)
@@ -38,15 +40,33 @@ MOBase::VersionInfo MO2Notes::version() const
 
 QList<MOBase::PluginSetting> MO2Notes::settings() const
 {
-    return {};
+    return {
+        { "default_to_view_mode", tr("Open in view mode by default"), QVariant(false) },
+        { "open_as_default_tab", tr("Open Notes tab on startup"), QVariant(false) }
+    };
 }
 
 bool MO2Notes::enabledByDefault() const { return true; }
 
-QWidget* MO2Notes::createWidget(IPanelInterface*, QWidget* parent, const QString& profilePath)
+QWidget* MO2Notes::createWidget(IPanelInterface* panelInterface, QWidget* parent, const QString& profilePath)
 {
+    m_PanelInterface = panelInterface;
     m_NotesWidget = new NotesWidget(parent);
     m_NotesWidget->setProfilePath(profilePath);
+
+    // Apply default view mode setting
+    const bool defaultToViewMode = m_Organizer->pluginSetting(name(), "default_to_view_mode").toBool();
+    m_NotesWidget->setDefaultToViewMode(defaultToViewMode);
+
+    // Activate this tab on startup if setting is enabled
+    const bool openAsDefaultTab = m_Organizer->pluginSetting(name(), "open_as_default_tab").toBool();
+    if (openAsDefaultTab && m_PanelInterface) {
+        // Defer activation to ensure tab widget is fully set up
+        QTimer::singleShot(0, [this]() {
+            m_PanelInterface->activatePanel();
+        });
+    }
+
     return m_NotesWidget;
 }
 

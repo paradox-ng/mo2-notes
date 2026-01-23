@@ -32,6 +32,9 @@ MOPanelInterface::~MOPanelInterface() noexcept
 
 void MOPanelInterface::assignWidget(QTabWidget* tabWidget, QWidget* panel)
 {
+  m_TabWidget = tabWidget;
+  m_Panel = panel;
+
   QObject::connect(tabWidget, &QTabWidget::currentChanged,
                    [this, tabWidget, panel](int index) {
                      QWidget* const currentWidget = tabWidget->widget(index);
@@ -39,6 +42,16 @@ void MOPanelInterface::assignWidget(QTabWidget* tabWidget, QWidget* panel)
                        m_PanelActivated();
                      }
                    });
+}
+
+void MOPanelInterface::activatePanel()
+{
+  if (m_TabWidget && m_Panel) {
+    const int index = m_TabWidget->indexOf(m_Panel);
+    if (index >= 0) {
+      m_TabWidget->setCurrentIndex(index);
+    }
+  }
 }
 
 void MOPanelInterface::setSelectedFiles(const QList<QString>& selectedFiles)

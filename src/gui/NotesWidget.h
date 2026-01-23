@@ -17,6 +17,8 @@ public:
 
     void setProfilePath(const QString& profilePath);
 
+    void setDefaultToViewMode(bool viewMode);
+
     void reloadStyles() const;
 
 private slots:

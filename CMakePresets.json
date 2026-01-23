@@ -1,6 +1,5 @@
 {
   "version": 3,
-  "$comment": "Create a CMakeUserPresets.json file (gitignored) to define your local paths. See README.md for details.",
   "configurePresets": [
     {
       "name": "vs2022-windows-base",

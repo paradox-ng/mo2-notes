@@ -41,6 +41,8 @@ class MOPanelInterface final : public QObject, public IPanelInterface
 
     void setPluginState(const QString& name, bool enable) override;
 
+    void activatePanel() override;
+
     private slots:
       void onModSeparatorCollapsed(const QModelIndex& index);
     void onModSeparatorExpanded(const QModelIndex& index);
@@ -51,6 +53,9 @@ private:
     MOBase::IPluginList* m_PluginList;
     QTreeView* m_ModListView;
     QTreeView* m_PluginListView;
+
+    QTabWidget* m_TabWidget{nullptr};
+    QWidget* m_Panel{nullptr};
 
     SignalPanelActivated m_PanelActivated;
     SignalSelectedOriginsChanged m_SelectedOriginsChanged;

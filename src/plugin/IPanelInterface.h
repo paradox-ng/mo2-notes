@@ -24,5 +24,9 @@ public:
     // not cause the list to notify its onPluginStateChanged listeners, so this will work
     // around that
     virtual void setPluginState(const QString& name, bool enable) = 0;
+
+    // activate this panel (make it the current tab)
+    //
+    virtual void activatePanel() = 0;
 };
 
