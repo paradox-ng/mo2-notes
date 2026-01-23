@@ -36,7 +36,9 @@ if (MSVC)
     )
 endif ()
 
-target_link_libraries(mo2_notes PUBLIC qmarkdowntextedit)
+find_package(mo2-uibase CONFIG REQUIRED)
+
+target_link_libraries(mo2_notes PUBLIC qmarkdowntextedit mo2::uibase)
 mo2_configure_plugin(
         mo2_notes
         WARNINGS OFF
