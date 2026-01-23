@@ -44,4 +44,4 @@ mo2_configure_plugin(
         boost
         Qt::WebEngineWidgets
 )
-mo2_install_target(mo2_notes)
+mo2_install_plugin(mo2_notes)
