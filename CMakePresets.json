@@ -25,7 +25,13 @@
     {
       "name": "vs2022-windows",
       "description": "VS2022 preset for CI builds",
-      "inherits": "vs2022-windows-base"
+      "inherits": "vs2022-windows-base",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "PATH",
+          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        }
+      }
     }
   ],
   "buildPresets": [
