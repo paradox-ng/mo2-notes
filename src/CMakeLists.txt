@@ -43,17 +43,28 @@ target_link_libraries(mo2_notes PUBLIC qmarkdowntextedit)
 
 # In CI, add uibase include directory for <iplugin.h> style includes
 # The headers are at CMAKE_INSTALL_PREFIX/include/uibase/
+message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+
 foreach(_prefix ${CMAKE_PREFIX_PATH})
+    message(STATUS "Checking prefix: ${_prefix}")
     if(EXISTS "${_prefix}/include/uibase")
         target_include_directories(mo2_notes PUBLIC "${_prefix}/include/uibase")
         message(STATUS "Added uibase include: ${_prefix}/include/uibase")
+    endif()
+    # Also check parent directory (for install/lib/cmake -> install/include/uibase)
+    get_filename_component(_parent "${_prefix}" DIRECTORY)
+    get_filename_component(_grandparent "${_parent}" DIRECTORY)
+    if(EXISTS "${_grandparent}/include/uibase")
+        target_include_directories(mo2_notes PUBLIC "${_grandparent}/include/uibase")
+        message(STATUS "Added uibase include from grandparent: ${_grandparent}/include/uibase")
     endif()
 endforeach()
 
 # Also check CMAKE_INSTALL_PREFIX
 if(EXISTS "${CMAKE_INSTALL_PREFIX}/include/uibase")
     target_include_directories(mo2_notes PUBLIC "${CMAKE_INSTALL_PREFIX}/include/uibase")
-    message(STATUS "Added uibase include: ${CMAKE_INSTALL_PREFIX}/include/uibase")
+    message(STATUS "Added uibase include from INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}/include/uibase")
 endif()
 
 mo2_configure_plugin(
