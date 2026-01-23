@@ -38,15 +38,8 @@ endif ()
 
 # In CI, mo2-uibase is installed separately. Locally it's provided by mo2.cmake
 find_package(mo2-uibase CONFIG QUIET)
-find_package(Qt6 REQUIRED COMPONENTS WebEngineWidgets)
-find_package(Boost REQUIRED)
 
-target_link_libraries(mo2_notes 
-        PUBLIC 
-        qmarkdowntextedit 
-        Qt6::WebEngineWidgets
-        Boost::headers
-)
+target_link_libraries(mo2_notes PUBLIC qmarkdowntextedit)
 
 # Link mo2::uibase if found via find_package (CI), otherwise mo2_configure_plugin provides it
 if(TARGET mo2::uibase)
@@ -63,6 +56,9 @@ endif()
 mo2_configure_plugin(
         mo2_notes
         WARNINGS OFF
+        PRIVATE_DEPENDS
+        boost
+        Qt::WebEngineWidgets
 )
 
 # Handle both old (mo2_install_target) and new (mo2_install_plugin) function names
