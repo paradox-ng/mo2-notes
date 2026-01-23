@@ -1,8 +1,11 @@
-﻿{
+{
   "version": 3,
+  "$comment": "Create a CMakeUserPresets.json file (gitignored) to define your local paths. See README.md for details.",
   "configurePresets": [
     {
-      "name": "vs2022-windows",
+      "name": "vs2022-windows-base",
+      "description": "Base preset for VS2022. Inherit this in CMakeUserPresets.json and add DEPENDENCIES_DIR, QT_ROOT, and PYTHON_ROOT.",
+      "hidden": true,
       "generator": "Visual Studio 17 2022",
       "binaryDir": "${sourceDir}/vsbuild",
       "cacheVariables": {
@@ -19,13 +22,6 @@
           "value": "x64-windows-static-md"
         }
       }
-    }
-  ],
-  "buildPresets": [
-    {
-      "name": "vs2022-windows",
-      "configurePreset": "vs2022-windows",
-      "configuration": "RelWithDebInfo"
     }
   ]
 }
