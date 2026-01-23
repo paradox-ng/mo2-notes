@@ -1,6 +1,6 @@
 #include "MOPanelInterface.h"
 
-#include <log.h>
+#include <uibase/log.h>
 
 #include <algorithm>
 #include <functional>

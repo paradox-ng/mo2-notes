@@ -2,7 +2,7 @@
 
 #include "IPanelInterface.h"
 
-#include <imoinfo.h>
+#include <uibase/imoinfo.h>
 
 #include <boost/signals2.hpp>
 
