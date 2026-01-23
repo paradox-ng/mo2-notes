@@ -21,6 +21,18 @@
           "value": "x64-windows-static-md"
         }
       }
+    },
+    {
+      "name": "vs2022-windows",
+      "description": "VS2022 preset for CI builds",
+      "inherits": "vs2022-windows-base"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "vs2022-windows",
+      "configurePreset": "vs2022-windows",
+      "configuration": "RelWithDebInfo"
     }
   ]
 }

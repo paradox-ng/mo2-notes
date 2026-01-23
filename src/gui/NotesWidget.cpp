@@ -7,6 +7,10 @@
 #include <QDir>
 
 #include <QHBoxLayout>
+#include <QInputDialog>
+#include <QMenu>
+#include <QMessageBox>
+#include <QToolButton>
 #include <QWebEngineProfile>
 #include <QWebEngineScript>
 #include <QWebEngineSettings>
@@ -36,21 +40,20 @@ NotesWidget::NotesWidget(QWidget* parent)
       , m_textEdit(new QMarkdownTextEdit(this))
       , m_webView(new QWebEngineView(this))
       , m_layout(new QVBoxLayout(this))
+      , m_toolbar(new QToolBar(this))
       , m_toggleButton(new QPushButton("View Mode", this))
       , m_saveTimer(new QTimer(this))
       , m_previewTimer(new QTimer(this))
 {
-    // Create a layout for the toggle button
-    auto buttonLayout = new QHBoxLayout();
-    buttonLayout->addStretch();
-    buttonLayout->addWidget(m_toggleButton);
+    // Initialize the formatting toolbar (includes toggle button)
+    initToolbar();
 
     // Add widgets to the stacked widget
     m_stackedWidget->addWidget(m_textEdit);
     m_stackedWidget->addWidget(m_webView);
 
     // Set up the main layout
-    m_layout->addLayout(buttonLayout);
+    m_layout->addWidget(m_toolbar);
     m_layout->addWidget(m_stackedWidget);
     setLayout(m_layout);
 
@@ -72,6 +75,14 @@ NotesWidget::NotesWidget(QWidget* parent)
     connect(m_saveTimer, &QTimer::timeout, this, &NotesWidget::saveNotes);
     connect(m_toggleButton, &QPushButton::clicked, this, &NotesWidget::toggleViewMode);
     connect(m_previewTimer, &QTimer::timeout, this, &NotesWidget::updatePreview);
+}
+
+NotesWidget::~NotesWidget()
+{
+    // Stop the timer to prevent any pending saves
+    m_saveTimer->stop();
+    // Force final save to ensure no data is lost on shutdown
+    saveNotes();
 }
 
 void NotesWidget::initWebView() const
@@ -169,10 +180,18 @@ void NotesWidget::toggleViewMode()
     if (m_isEditMode) {
         m_stackedWidget->setCurrentWidget(m_textEdit);
         m_toggleButton->setText("View Mode");
+        // Show formatting actions in edit mode
+        for (QAction* action : m_toolbar->actions()) {
+            action->setVisible(true);
+        }
     } else {
         updatePreview();
         m_stackedWidget->setCurrentWidget(m_webView);
         m_toggleButton->setText("Edit Mode");
+        // Hide formatting actions in view mode (keep toolbar for toggle button)
+        for (QAction* action : m_toolbar->actions()) {
+            action->setVisible(false);
+        }
     }
 }
 
@@ -383,7 +402,13 @@ void NotesWidget::createDefaultMarkdownStyle(const QString& path)
 
 void NotesWidget::setProfilePath(const QString& profilePath)
 {
+    // Stop any pending save timer before changing profile
+    m_saveTimer->stop();
+
     m_profilePath = profilePath;
+
+    // Reset retry count for new profile
+    m_saveRetryCount = 0;
 
     // Create default style files if needed
     const QString markdownStylePath = m_profilePath + "/markdown_style.json";
@@ -392,11 +417,14 @@ void NotesWidget::setProfilePath(const QString& profilePath)
     // Load notes content
     const QString notesFilePath = m_profilePath + "/notes.md";
     QFile file(notesFilePath);
+
+    // Block signals during load to prevent triggering onTextChanged
+    m_textEdit->blockSignals(true);
+
     if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
         m_textEdit->setPlainText(in.readAll());
         file.close();
-        m_isDirty = false;
     } else {
         // Set default welcome content if no file exists
         m_textEdit->setPlainText(DefaultContent::WELCOME_MARKDOWN);
@@ -406,8 +434,11 @@ void NotesWidget::setProfilePath(const QString& profilePath)
             out << DefaultContent::WELCOME_MARKDOWN;
             file.close();
         }
-
     }
+
+    // Restore signals and reset dirty flag
+    m_textEdit->blockSignals(false);
+    m_isDirty = false;
 
     // Apply styles to components
     initWebView(); // This loads preview styles
@@ -423,11 +454,19 @@ void NotesWidget::setDefaultToViewMode(bool viewMode)
         updatePreview();
         m_stackedWidget->setCurrentWidget(m_webView);
         m_toggleButton->setText("Edit Mode");
+        // Hide formatting actions in view mode
+        for (QAction* action : m_toolbar->actions()) {
+            action->setVisible(false);
+        }
     } else if (!viewMode && !m_isEditMode) {
         // Switch to edit mode
         m_isEditMode = true;
         m_stackedWidget->setCurrentWidget(m_textEdit);
         m_toggleButton->setText("View Mode");
+        // Show formatting actions in edit mode
+        for (QAction* action : m_toolbar->actions()) {
+            action->setVisible(true);
+        }
     }
 }
 
@@ -470,8 +509,273 @@ void NotesWidget::saveNotes()
         out << m_textEdit->toPlainText();
         file.close();
         m_isDirty = false;
+        m_saveRetryCount = 0; // Reset retry count on success
         qDebug() << "Notes saved to:" << notesFilePath;
     } else {
-        qWarning() << "Failed to save notes to:" << notesFilePath;
+        m_saveRetryCount++;
+        qWarning() << "Failed to save notes to:" << notesFilePath
+                   << "(attempt" << m_saveRetryCount << "of" << MAX_SAVE_RETRIES << ")";
+
+        if (m_saveRetryCount < MAX_SAVE_RETRIES) {
+            // Schedule a retry after a short delay
+            m_saveTimer->start();
+        } else {
+            // Show error popup after max retries exceeded
+            QMessageBox::critical(
+                this,
+                tr("Failed to Save Notes"),
+                tr("Unable to save notes to:\n%1\n\n"
+                   "Please check that the file is not read-only and that you have "
+                   "write permissions to the profile directory.\n\n"
+                   "Your changes are still in memory. Please try saving again or "
+                   "copy your notes to a safe location.")
+                    .arg(notesFilePath)
+            );
+            // Reset retry count so user can try again
+            m_saveRetryCount = 0;
+        }
     }
+}
+
+void NotesWidget::initToolbar()
+{
+    m_toolbar->setMovable(false);
+    m_toolbar->setFloatable(false);
+    m_toolbar->setIconSize(QSize(16, 16));
+
+    // Bold
+    auto* boldAction = m_toolbar->addAction("B");
+    boldAction->setToolTip(tr("Bold (Ctrl+B)"));
+    boldAction->setShortcut(QKeySequence::Bold);
+    QFont boldFont = boldAction->font();
+    boldFont.setBold(true);
+    connect(boldAction, &QAction::triggered, this, &NotesWidget::insertBold);
+
+    // Italic
+    auto* italicAction = m_toolbar->addAction("I");
+    italicAction->setToolTip(tr("Italic (Ctrl+I)"));
+    italicAction->setShortcut(QKeySequence::Italic);
+    QFont italicFont = italicAction->font();
+    italicFont.setItalic(true);
+    connect(italicAction, &QAction::triggered, this, &NotesWidget::insertItalic);
+
+    // Strikethrough
+    auto* strikeAction = m_toolbar->addAction("S");
+    strikeAction->setToolTip(tr("Strikethrough"));
+    connect(strikeAction, &QAction::triggered, this, &NotesWidget::insertStrikethrough);
+
+    m_toolbar->addSeparator();
+
+    // Headers dropdown
+    auto* headingButton = new QToolButton(this);
+    headingButton->setText("H");
+    headingButton->setToolTip(tr("Headings"));
+    headingButton->setPopupMode(QToolButton::InstantPopup);
+    auto* headingMenu = new QMenu(headingButton);
+    headingMenu->addAction(tr("Heading 1"), this, &NotesWidget::insertHeading1);
+    headingMenu->addAction(tr("Heading 2"), this, &NotesWidget::insertHeading2);
+    headingMenu->addAction(tr("Heading 3"), this, &NotesWidget::insertHeading3);
+    headingButton->setMenu(headingMenu);
+    m_toolbar->addWidget(headingButton);
+
+    m_toolbar->addSeparator();
+
+    // Link
+    auto* linkAction = m_toolbar->addAction("🔗");
+    linkAction->setToolTip(tr("Insert Link"));
+    connect(linkAction, &QAction::triggered, this, &NotesWidget::insertLink);
+
+    // Image
+    auto* imageAction = m_toolbar->addAction("🖼");
+    imageAction->setToolTip(tr("Insert Image"));
+    connect(imageAction, &QAction::triggered, this, &NotesWidget::insertImage);
+
+    m_toolbar->addSeparator();
+
+    // Inline code
+    auto* codeAction = m_toolbar->addAction("< >");
+    codeAction->setToolTip(tr("Inline Code"));
+    connect(codeAction, &QAction::triggered, this, &NotesWidget::insertInlineCode);
+
+    // Code block
+    auto* codeBlockAction = m_toolbar->addAction("{ }");
+    codeBlockAction->setToolTip(tr("Code Block"));
+    connect(codeBlockAction, &QAction::triggered, this, &NotesWidget::insertCodeBlock);
+
+    m_toolbar->addSeparator();
+
+    // Bullet list
+    auto* bulletAction = m_toolbar->addAction("•");
+    bulletAction->setToolTip(tr("Bullet List"));
+    connect(bulletAction, &QAction::triggered, this, &NotesWidget::insertBulletList);
+
+    // Numbered list
+    auto* numberedAction = m_toolbar->addAction("1.");
+    numberedAction->setToolTip(tr("Numbered List"));
+    connect(numberedAction, &QAction::triggered, this, &NotesWidget::insertNumberedList);
+
+    // Checkbox
+    auto* checkboxAction = m_toolbar->addAction("☐");
+    checkboxAction->setToolTip(tr("Checkbox"));
+    connect(checkboxAction, &QAction::triggered, this, &NotesWidget::insertCheckbox);
+
+    m_toolbar->addSeparator();
+
+    // Quote
+    auto* quoteAction = m_toolbar->addAction("❝");
+    quoteAction->setToolTip(tr("Quote"));
+    connect(quoteAction, &QAction::triggered, this, &NotesWidget::insertQuote);
+
+    // Horizontal rule
+    auto* hrAction = m_toolbar->addAction("—");
+    hrAction->setToolTip(tr("Horizontal Rule"));
+    connect(hrAction, &QAction::triggered, this, &NotesWidget::insertHorizontalRule);
+
+    // Add spacer to push toggle button to the right
+    auto* spacer = new QWidget(this);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_toolbar->addWidget(spacer);
+
+    // Add toggle button at the end
+    m_toolbar->addWidget(m_toggleButton);
+}
+
+void NotesWidget::wrapSelection(const QString& before, const QString& after)
+{
+    QTextCursor cursor = m_textEdit->textCursor();
+    const QString selectedText = cursor.selectedText();
+
+    if (selectedText.isEmpty()) {
+        // No selection - insert placeholder
+        cursor.insertText(before + tr("text") + after);
+        // Move cursor to select the placeholder
+        cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, after.length());
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 4); // "text" length
+    } else {
+        // Wrap selected text
+        cursor.insertText(before + selectedText + after);
+    }
+    m_textEdit->setTextCursor(cursor);
+    m_textEdit->setFocus();
+}
+
+void NotesWidget::insertAtLineStart(const QString& prefix)
+{
+    QTextCursor cursor = m_textEdit->textCursor();
+    cursor.movePosition(QTextCursor::StartOfLine);
+    cursor.insertText(prefix);
+    m_textEdit->setTextCursor(cursor);
+    m_textEdit->setFocus();
+}
+
+void NotesWidget::insertBold()
+{
+    wrapSelection("**", "**");
+}
+
+void NotesWidget::insertItalic()
+{
+    wrapSelection("*", "*");
+}
+
+void NotesWidget::insertStrikethrough()
+{
+    wrapSelection("~~", "~~");
+}
+
+void NotesWidget::insertHeading1()
+{
+    insertAtLineStart("# ");
+}
+
+void NotesWidget::insertHeading2()
+{
+    insertAtLineStart("## ");
+}
+
+void NotesWidget::insertHeading3()
+{
+    insertAtLineStart("### ");
+}
+
+void NotesWidget::insertLink()
+{
+    QTextCursor cursor = m_textEdit->textCursor();
+    const QString selectedText = cursor.selectedText();
+
+    bool ok;
+    const QString url = QInputDialog::getText(this, tr("Insert Link"),
+        tr("URL:"), QLineEdit::Normal, "https://", &ok);
+
+    if (ok && !url.isEmpty()) {
+        if (selectedText.isEmpty()) {
+            cursor.insertText(QString("[%1](%2)").arg(tr("link text"), url));
+        } else {
+            cursor.insertText(QString("[%1](%2)").arg(selectedText, url));
+        }
+        m_textEdit->setTextCursor(cursor);
+    }
+    m_textEdit->setFocus();
+}
+
+void NotesWidget::insertImage()
+{
+    bool ok;
+    const QString url = QInputDialog::getText(this, tr("Insert Image"),
+        tr("Image URL:"), QLineEdit::Normal, "https://", &ok);
+
+    if (ok && !url.isEmpty()) {
+        QTextCursor cursor = m_textEdit->textCursor();
+        cursor.insertText(QString("![%1](%2)").arg(tr("alt text"), url));
+        m_textEdit->setTextCursor(cursor);
+    }
+    m_textEdit->setFocus();
+}
+
+void NotesWidget::insertInlineCode()
+{
+    wrapSelection("`", "`");
+}
+
+void NotesWidget::insertCodeBlock()
+{
+    QTextCursor cursor = m_textEdit->textCursor();
+    const QString selectedText = cursor.selectedText();
+
+    if (selectedText.isEmpty()) {
+        cursor.insertText("```\n" + tr("code") + "\n```");
+    } else {
+        cursor.insertText("```\n" + selectedText + "\n```");
+    }
+    m_textEdit->setTextCursor(cursor);
+    m_textEdit->setFocus();
+}
+
+void NotesWidget::insertBulletList()
+{
+    insertAtLineStart("- ");
+}
+
+void NotesWidget::insertNumberedList()
+{
+    insertAtLineStart("1. ");
+}
+
+void NotesWidget::insertCheckbox()
+{
+    insertAtLineStart("- [ ] ");
+}
+
+void NotesWidget::insertQuote()
+{
+    insertAtLineStart("> ");
+}
+
+void NotesWidget::insertHorizontalRule()
+{
+    QTextCursor cursor = m_textEdit->textCursor();
+    cursor.movePosition(QTextCursor::EndOfLine);
+    cursor.insertText("\n\n---\n");
+    m_textEdit->setTextCursor(cursor);
+    m_textEdit->setFocus();
 }
