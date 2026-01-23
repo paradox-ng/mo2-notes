@@ -23,11 +23,15 @@ jobs:
           mo2-skip-configure: true
           qt-modules: qtpositioning qtwebchannel qtwebengine
 
+      - name: Install vcpkg dependencies
+        run: |
+          vcpkg install boost-headers:x64-windows-static-md boost-signals2:x64-windows-static-md
+
       - name: Configure
         run: |
           cd build/mo2-notes
           cmake --preset vs2022-windows-ci `
-            "-DCMAKE_PREFIX_PATH=${{steps.build-deps.outputs.cmake-prefix-path}}" `
+            "-DCMAKE_PREFIX_PATH=${{steps.build-deps.outputs.cmake-prefix-path}};C:\vcpkg\installed\x64-windows-static-md" `
             "-DCMAKE_INSTALL_PREFIX=${{steps.build-deps.outputs.cmake-install-path}}"
 
       - name: Build
