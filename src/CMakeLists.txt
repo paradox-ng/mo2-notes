@@ -36,14 +36,38 @@ if (MSVC)
     )
 endif ()
 
-find_package(mo2-uibase CONFIG REQUIRED)
+# In CI, mo2-uibase is installed separately. Locally it's provided by mo2.cmake
+find_package(mo2-uibase CONFIG QUIET)
+find_package(Qt6 REQUIRED COMPONENTS WebEngineWidgets)
+find_package(Boost REQUIRED)
 
-target_link_libraries(mo2_notes PUBLIC qmarkdowntextedit mo2::uibase)
+target_link_libraries(mo2_notes 
+        PUBLIC 
+        qmarkdowntextedit 
+        Qt6::WebEngineWidgets
+        Boost::headers
+)
+
+# Link mo2::uibase if found via find_package (CI), otherwise mo2_configure_plugin provides it
+if(TARGET mo2::uibase)
+    target_link_libraries(mo2_notes PUBLIC mo2::uibase)
+    # In CI, add the uibase subdirectory to includes for <iplugin.h> style includes
+    get_target_property(_uibase_includes mo2::uibase INTERFACE_INCLUDE_DIRECTORIES)
+    foreach(_inc ${_uibase_includes})
+        if(EXISTS "${_inc}/uibase")
+            target_include_directories(mo2_notes PUBLIC "${_inc}/uibase")
+        endif()
+    endforeach()
+endif()
+
 mo2_configure_plugin(
         mo2_notes
         WARNINGS OFF
-        PRIVATE_DEPENDS
-        boost
-        Qt::WebEngineWidgets
 )
-mo2_install_plugin(mo2_notes)
+
+# Handle both old (mo2_install_target) and new (mo2_install_plugin) function names
+if(COMMAND mo2_install_plugin)
+    mo2_install_plugin(mo2_notes)
+elseif(COMMAND mo2_install_target)
+    mo2_install_target(mo2_notes)
+endif()

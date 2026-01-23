@@ -42,114 +42,114 @@ Your changes are still in memory. Please try saving again or copy your notes to 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="505"/>
+        <location filename="gui/NotesWidget.cpp" line="548"/>
         <source>Bold (Ctrl+B)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="513"/>
+        <location filename="gui/NotesWidget.cpp" line="556"/>
         <source>Italic (Ctrl+I)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="521"/>
+        <location filename="gui/NotesWidget.cpp" line="564"/>
         <source>Strikethrough</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="529"/>
+        <location filename="gui/NotesWidget.cpp" line="572"/>
         <source>Headings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="532"/>
+        <location filename="gui/NotesWidget.cpp" line="575"/>
         <source>Heading 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="533"/>
+        <location filename="gui/NotesWidget.cpp" line="576"/>
         <source>Heading 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="534"/>
+        <location filename="gui/NotesWidget.cpp" line="577"/>
         <source>Heading 3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="542"/>
-        <location filename="gui/NotesWidget.cpp" line="664"/>
+        <location filename="gui/NotesWidget.cpp" line="585"/>
+        <location filename="gui/NotesWidget.cpp" line="707"/>
         <source>Insert Link</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="547"/>
-        <location filename="gui/NotesWidget.cpp" line="681"/>
+        <location filename="gui/NotesWidget.cpp" line="590"/>
+        <location filename="gui/NotesWidget.cpp" line="724"/>
         <source>Insert Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="554"/>
+        <location filename="gui/NotesWidget.cpp" line="597"/>
         <source>Inline Code</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="559"/>
+        <location filename="gui/NotesWidget.cpp" line="602"/>
         <source>Code Block</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="566"/>
+        <location filename="gui/NotesWidget.cpp" line="609"/>
         <source>Bullet List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="571"/>
+        <location filename="gui/NotesWidget.cpp" line="614"/>
         <source>Numbered List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="576"/>
+        <location filename="gui/NotesWidget.cpp" line="619"/>
         <source>Checkbox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="583"/>
+        <location filename="gui/NotesWidget.cpp" line="626"/>
         <source>Quote</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="588"/>
+        <location filename="gui/NotesWidget.cpp" line="631"/>
         <source>Horizontal Rule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="607"/>
+        <location filename="gui/NotesWidget.cpp" line="650"/>
         <source>text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="665"/>
+        <location filename="gui/NotesWidget.cpp" line="708"/>
         <source>URL:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="669"/>
+        <location filename="gui/NotesWidget.cpp" line="712"/>
         <source>link text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="682"/>
+        <location filename="gui/NotesWidget.cpp" line="725"/>
         <source>Image URL:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="686"/>
+        <location filename="gui/NotesWidget.cpp" line="729"/>
         <source>alt text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="gui/NotesWidget.cpp" line="703"/>
+        <location filename="gui/NotesWidget.cpp" line="746"/>
         <source>code</source>
         <translation type="unfinished"></translation>
     </message>

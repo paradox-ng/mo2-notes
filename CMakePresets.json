@@ -23,7 +23,7 @@
       }
     },
     {
-      "name": "vs2022-windows",
+      "name": "vs2022-windows-ci",
       "description": "VS2022 preset for CI builds",
       "inherits": "vs2022-windows-base",
       "cacheVariables": {
@@ -36,8 +36,8 @@
   ],
   "buildPresets": [
     {
-      "name": "vs2022-windows",
-      "configurePreset": "vs2022-windows",
+      "name": "vs2022-windows-ci",
+      "configurePreset": "vs2022-windows-ci",
       "configuration": "RelWithDebInfo"
     }
   ]

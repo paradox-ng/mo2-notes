@@ -2,7 +2,7 @@
 
 #include "IPanelInterface.h"
 
-#include <uibase/iplugin.h>
+#include <iplugin.h>
 
 class IPluginPanel : public QObject, public MOBase::IPlugin
 {

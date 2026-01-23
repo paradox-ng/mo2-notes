@@ -15,17 +15,29 @@ jobs:
   build:
     runs-on: windows-2022
     steps:
-      - name: Build
+      - name: Build Dependencies
+        id: build-deps
         uses: ModOrganizer2/build-with-mob-action@master
         with:
           mo2-dependencies: cmake_common uibase lz4
+          mo2-skip-configure: true
           qt-modules: qtpositioning qtwebchannel qtwebengine
 
+      - name: Configure
+        run: |
+          cd build/mo2-notes
+          cmake --preset vs2022-windows-ci `
+            "-DCMAKE_PREFIX_PATH=${{steps.build-deps.outputs.cmake-prefix-path}}" `
+            "-DCMAKE_INSTALL_PREFIX=${{steps.build-deps.outputs.cmake-install-path}}"
+
+      - name: Build
+        run: cmake --build build/mo2-notes/vsbuild --config ${{env.BUILD_TYPE}} --parallel
+
       - name: Install
-        run: cmake --install ${{env.SOURCE_ROOT}}/vsbuild --config ${{env.BUILD_TYPE}} --prefix ${{env.SOURCE_ROOT}}/install
+        run: cmake --install build/mo2-notes/vsbuild --config ${{env.BUILD_TYPE}} --prefix build/mo2-notes/install
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: mo2-notes
-          path: ${{env.SOURCE_ROOT}}/install/bin
+          path: build/mo2-notes/install/bin
