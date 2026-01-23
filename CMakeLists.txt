@@ -58,6 +58,11 @@ if (DEFINED DEPENDENCIES_DIR)
 	endif ()
 endif ()
 
+# Fallback: check sibling directory (CI environment)
+if (NOT _mo2_cmake AND EXISTS "${CMAKE_CURRENT_LIST_DIR}/../cmake_common/mo2.cmake")
+	set(_mo2_cmake "${CMAKE_CURRENT_LIST_DIR}/../cmake_common/mo2.cmake")
+endif ()
+
 if (NOT _mo2_cmake)
 	message(FATAL_ERROR "Set DEPENDENCIES_DIR to your Mod Organizer 2.5.2 source tree (folder containing cmake_common/mo2.cmake).")
 endif ()
