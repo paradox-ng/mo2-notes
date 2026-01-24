@@ -18,6 +18,16 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Restore mob cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            C:/mo2
+            C:/qt-install
+          key: mob-${{ runner.os }}-qt6-webengine-v1
+          restore-keys: |
+            mob-${{ runner.os }}-qt6-webengine-
+
       - name: Build Dependencies
         id: build-deps
         uses: ModOrganizer2/build-with-mob-action@master
