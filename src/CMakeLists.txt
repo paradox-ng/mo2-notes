@@ -50,6 +50,12 @@ target_link_libraries(mo2_notes
         Boost::headers
 )
 
+# Link to uibase if found (CI environment)
+if(TARGET mo2::uibase)
+    target_link_libraries(mo2_notes PUBLIC mo2::uibase)
+    message(STATUS "Linked mo2::uibase")
+endif()
+
 # In CI, add uibase include directory for <iplugin.h> style includes
 # The headers are at CMAKE_INSTALL_PREFIX/include/uibase/
 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")

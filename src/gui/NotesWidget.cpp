@@ -188,9 +188,11 @@ void NotesWidget::toggleViewMode()
         updatePreview();
         m_stackedWidget->setCurrentWidget(m_webView);
         m_toggleButton->setText("Edit Mode");
-        // Hide formatting actions in view mode (keep toolbar for toggle button)
+        // Hide formatting actions in view mode (keep toggle button visible)
         for (QAction* action : m_toolbar->actions()) {
-            action->setVisible(false);
+            if (action != m_toggleAction) {
+                action->setVisible(false);
+            }
         }
     }
 }
@@ -454,9 +456,11 @@ void NotesWidget::setDefaultToViewMode(bool viewMode)
         updatePreview();
         m_stackedWidget->setCurrentWidget(m_webView);
         m_toggleButton->setText("Edit Mode");
-        // Hide formatting actions in view mode
+        // Hide formatting actions in view mode (keep toggle button visible)
         for (QAction* action : m_toolbar->actions()) {
-            action->setVisible(false);
+            if (action != m_toggleAction) {
+                action->setVisible(false);
+            }
         }
     } else if (!viewMode && !m_isEditMode) {
         // Switch to edit mode
@@ -637,7 +641,7 @@ void NotesWidget::initToolbar()
     m_toolbar->addWidget(spacer);
 
     // Add toggle button at the end
-    m_toolbar->addWidget(m_toggleButton);
+    m_toggleAction = m_toolbar->addWidget(m_toggleButton);
 }
 
 void NotesWidget::wrapSelection(const QString& before, const QString& after)
