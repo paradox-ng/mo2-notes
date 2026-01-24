@@ -66,6 +66,7 @@ private:
     QToolBar* m_toolbar;
     QPushButton* m_toggleButton;
     QAction* m_toggleAction = nullptr;
+    QAction* m_spacerAction = nullptr;
     QString m_profilePath;
     QTimer* m_saveTimer;
     QTimer* m_previewTimer;

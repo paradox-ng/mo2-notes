@@ -188,9 +188,9 @@ void NotesWidget::toggleViewMode()
         updatePreview();
         m_stackedWidget->setCurrentWidget(m_webView);
         m_toggleButton->setText("Edit Mode");
-        // Hide formatting actions in view mode (keep toggle button visible)
+        // Hide formatting actions in view mode (keep toggle button and spacer visible)
         for (QAction* action : m_toolbar->actions()) {
-            if (action != m_toggleAction) {
+            if (action != m_toggleAction && action != m_spacerAction) {
                 action->setVisible(false);
             }
         }
@@ -456,9 +456,9 @@ void NotesWidget::setDefaultToViewMode(bool viewMode)
         updatePreview();
         m_stackedWidget->setCurrentWidget(m_webView);
         m_toggleButton->setText("Edit Mode");
-        // Hide formatting actions in view mode (keep toggle button visible)
+        // Hide formatting actions in view mode (keep toggle button and spacer visible)
         for (QAction* action : m_toolbar->actions()) {
-            if (action != m_toggleAction) {
+            if (action != m_toggleAction && action != m_spacerAction) {
                 action->setVisible(false);
             }
         }
@@ -638,7 +638,7 @@ void NotesWidget::initToolbar()
     // Add spacer to push toggle button to the right
     auto* spacer = new QWidget(this);
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    m_toolbar->addWidget(spacer);
+    m_spacerAction = m_toolbar->addWidget(spacer);
 
     // Add toggle button at the end
     m_toggleAction = m_toolbar->addWidget(m_toggleButton);

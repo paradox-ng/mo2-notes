@@ -49,6 +49,11 @@ bool IPluginPanel::init(MOBase::IOrganizer* organizer)
         const auto label    = this->label();
         const auto position = this->position();
 
+        // Save the currently selected widget (not just the index) so we can
+        // restore the selection after inserting the new tab. This prevents
+        // the plugin from interfering with MO2's saved window state.
+        QWidget* const currentWidget = tabWidget->currentWidget();
+
         switch (position.order_) {
         case Order::Before: {
             const auto refTab = !position.reference_.isNull()
@@ -56,20 +61,14 @@ bool IPluginPanel::init(MOBase::IOrganizer* organizer)
                 : nullptr;
             if (refTab != nullptr) {
                 if (const int index = tabWidget->indexOf(refTab); index != -1) {
-                    const int currentIndex = tabWidget->currentIndex();
                     tabWidget->insertTab(index, widget, label);
-                    if (index <= currentIndex) {
-                        tabWidget->setCurrentIndex(currentIndex);
-                    }
                 }
                 break;
             }
         }
             [[fallthrough]];
         case Order::AtStart: {
-            const int currentIndex = tabWidget->currentIndex();
             tabWidget->insertTab(0, widget, label);
-            tabWidget->setCurrentIndex(currentIndex);
         }
         break;
         case Order::InPlaceOf:
@@ -93,6 +92,16 @@ bool IPluginPanel::init(MOBase::IOrganizer* organizer)
             tabWidget->addTab(widget, label);
         }
         break;
+        }
+
+        // Restore the original tab selection. By restoring based on the widget
+        // pointer rather than the index, we correctly handle index shifts caused
+        // by tab insertion.
+        if (currentWidget != nullptr) {
+            const int restoredIndex = tabWidget->indexOf(currentWidget);
+            if (restoredIndex >= 0) {
+                tabWidget->setCurrentIndex(restoredIndex);
+            }
         }
 
         intfc->assignWidget(tabWidget, widget);
