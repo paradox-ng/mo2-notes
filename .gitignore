@@ -2,6 +2,7 @@ vsbuild/
 .idea/
 cmake-build-debug/
 install/
+artifacts/
 vcpkg.json
 vcpkg_installed/
 CMakeUserPresets.json

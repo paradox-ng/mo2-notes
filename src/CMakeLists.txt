@@ -5,7 +5,8 @@ set_property(TARGET mo2_notes PROPERTY CXX_STANDARD 20)
 
 set(CMAKE_AUTORCC ON) # Will make the compiler read QRC file and skip the JS stuff.
 
-set(BUILD_QMARKDOWNTEXTEDIT_EXECUTABLES OFF CACHE BOOL "Build executables" FORCE)
+# QMarkdownTextEdit demo executable - enable if you want to test the editor standalone
+set(BUILD_QMARKDOWNTEXTEDIT_EXECUTABLES OFF CACHE BOOL "Build QMarkdownTextEdit demo executable")
 FetchContent_Declare(
         QMarkdownTextEdit
         GIT_REPOSITORY https://github.com/pbek/QMarkdownTextEdit.git
@@ -93,3 +94,25 @@ if(COMMAND mo2_install_plugin)
 elseif(COMMAND mo2_install_target)
     mo2_install_target(mo2_notes)
 endif()
+
+# === Output to artifacts directory ===
+# mo2_configure_plugin handles translation compilation automatically
+# The .qm file is output to CMAKE_CURRENT_BINARY_DIR
+set(QM_FILE "${CMAKE_CURRENT_BINARY_DIR}/mo2_notes_en.qm")
+
+# Copy plugin and translations after build
+add_custom_command(TARGET mo2_notes POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${MO2_PLUGIN_TARGET_DIR}/plugins"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${MO2_PLUGIN_TARGET_DIR}/translations"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "$<TARGET_FILE:mo2_notes>"
+        "${MO2_PLUGIN_TARGET_DIR}/plugins/"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${QM_FILE}"
+        "${MO2_PLUGIN_TARGET_DIR}/translations/"
+    COMMENT "Copying plugin and translations to ${MO2_PLUGIN_TARGET_DIR}/"
+)
+
+# Install targets (for cmake --install)
+install(TARGETS mo2_notes RUNTIME DESTINATION "${MO2_PLUGIN_TARGET_DIR}/plugins")
+install(FILES "${QM_FILE}" DESTINATION "${MO2_PLUGIN_TARGET_DIR}/translations")
