@@ -15,6 +15,8 @@ env:
 jobs:
   build:
     runs-on: windows-2022
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg-cache
     steps:
       - name: Build Dependencies
         id: build-deps
@@ -23,6 +25,17 @@ jobs:
           mo2-dependencies: cmake_common uibase lz4
           mo2-skip-configure: true
           qt-modules: qtpositioning qtwebchannel qtwebengine
+
+      - name: Create vcpkg cache directory
+        run: New-Item -ItemType Directory -Force -Path "${{ env.VCPKG_DEFAULT_BINARY_CACHE }}"
+
+      - name: Restore vcpkg cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: vcpkg-${{ runner.os }}-boost-v1
+          restore-keys: |
+            vcpkg-${{ runner.os }}-boost-
 
       - name: Install vcpkg dependencies
         run: |
