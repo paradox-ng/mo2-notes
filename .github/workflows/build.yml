@@ -76,10 +76,10 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
           $version = "${{ github.ref_name }}"
-          7z a "mo2-notes-panel-$version.7zip" ./build/mo2-notes/install/bin/*
+          7z a "mo2-notes-panel-$version.7z" ./build/mo2-notes/install/bin/*
 
       - name: Upload Release Assets
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: mo2-notes-panel-${{ github.ref_name }}.7zip
+          files: mo2-notes-panel-${{ github.ref_name }}.7z
