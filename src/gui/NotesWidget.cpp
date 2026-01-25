@@ -6,18 +6,18 @@
 #include <QDebug>
 #include <QDir>
 
+#include "NotesWebPage.h"
 #include <QHBoxLayout>
 #include <QInputDialog>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMenu>
 #include <QMessageBox>
 #include <QToolButton>
 #include <QWebEngineProfile>
 #include <QWebEngineScript>
 #include <QWebEngineSettings>
-#include <QJsonDocument>
 #include <QWebEngineView>
-#include <QJsonObject>
-#include "NotesWebPage.h"
 
 #include <qstyle.h>
 
@@ -36,14 +36,14 @@ constexpr auto FONT_MONO        = "monospace"; // Monospace font
 
 NotesWidget::NotesWidget(QWidget* parent)
     : QWidget(parent)
-      , m_stackedWidget(new QStackedWidget(this))
-      , m_textEdit(new QMarkdownTextEdit(this))
-      , m_webView(new QWebEngineView(this))
-      , m_layout(new QVBoxLayout(this))
-      , m_toolbar(new QToolBar(this))
-      , m_toggleButton(new QPushButton("View Mode", this))
-      , m_saveTimer(new QTimer(this))
-      , m_previewTimer(new QTimer(this))
+    , m_stackedWidget(new QStackedWidget(this))
+    , m_textEdit(new QMarkdownTextEdit(this))
+    , m_webView(new QWebEngineView(this))
+    , m_layout(new QVBoxLayout(this))
+    , m_toolbar(new QToolBar(this))
+    , m_toggleButton(new QPushButton("View Mode", this))
+    , m_saveTimer(new QTimer(this))
+    , m_previewTimer(new QTimer(this))
 {
     // Initialize the formatting toolbar (includes toggle button)
     initToolbar();
@@ -159,7 +159,8 @@ function updateContent(markdown) {
 <body>
     <div id="content"></div>
 </body>
-</html>)").arg(styleSheet));
+</html>)")
+            .arg(styleSheet));
 }
 
 void NotesWidget::applyEditorStyles() const
@@ -170,7 +171,6 @@ void NotesWidget::applyEditorStyles() const
     // Update the editor's appearance
     // m_textEdit->style()->unpolish(m_textEdit);
     // m_textEdit->style()->polish(m_textEdit);
-
 }
 
 void NotesWidget::toggleViewMode()
@@ -264,7 +264,8 @@ void NotesWidget::setupMarkdownHighlighter() const
                     if (formatObj.contains("fontFamily"))
                         format.setFontFamilies({ formatObj["fontFamily"].toString() });
 
-                    MarkdownHighlighter::setTextFormat(static_cast<MarkdownHighlighter::HighlighterState>(stateValue), format);
+                    MarkdownHighlighter::setTextFormat(
+                        static_cast<MarkdownHighlighter::HighlighterState>(stateValue), format);
                 }
             }
         }
@@ -383,13 +384,13 @@ void NotesWidget::createDefaultMarkdownStyle(const QString& path)
 
         QJsonObject checkboxUnchecked;
         checkboxUnchecked["foreground"] = BASE04_LIGHT;
-        checkboxUnchecked["bold"] = true;
-        styleObj["CheckBoxUnChecked"] = checkboxUnchecked;
+        checkboxUnchecked["bold"]       = true;
+        styleObj["CheckBoxUnChecked"]   = checkboxUnchecked;
 
         QJsonObject checkboxChecked;
         checkboxChecked["foreground"] = BASE0E_PURPLE; // Changed to purple
-        checkboxChecked["bold"] = true;
-        styleObj["CheckBoxChecked"] = checkboxChecked;
+        checkboxChecked["bold"]       = true;
+        styleObj["CheckBoxChecked"]   = checkboxChecked;
 
         // Write the JSON to file
         const QJsonDocument doc(styleObj);
@@ -512,29 +513,26 @@ void NotesWidget::saveNotes()
         QTextStream out(&file);
         out << m_textEdit->toPlainText();
         file.close();
-        m_isDirty = false;
+        m_isDirty        = false;
         m_saveRetryCount = 0; // Reset retry count on success
         qDebug() << "Notes saved to:" << notesFilePath;
     } else {
         m_saveRetryCount++;
-        qWarning() << "Failed to save notes to:" << notesFilePath
-                   << "(attempt" << m_saveRetryCount << "of" << MAX_SAVE_RETRIES << ")";
+        qWarning() << "Failed to save notes to:" << notesFilePath << "(attempt" << m_saveRetryCount << "of"
+                   << MAX_SAVE_RETRIES << ")";
 
         if (m_saveRetryCount < MAX_SAVE_RETRIES) {
             // Schedule a retry after a short delay
             m_saveTimer->start();
         } else {
             // Show error popup after max retries exceeded
-            QMessageBox::critical(
-                this,
-                tr("Failed to Save Notes"),
+            QMessageBox::critical(this, tr("Failed to Save Notes"),
                 tr("Unable to save notes to:\n%1\n\n"
                    "Please check that the file is not read-only and that you have "
                    "write permissions to the profile directory.\n\n"
                    "Your changes are still in memory. Please try saving again or "
                    "copy your notes to a safe location.")
-                    .arg(notesFilePath)
-            );
+                    .arg(notesFilePath));
             // Reset retry count so user can try again
             m_saveRetryCount = 0;
         }
@@ -545,7 +543,6 @@ void NotesWidget::initToolbar()
 {
     m_toolbar->setMovable(false);
     m_toolbar->setFloatable(false);
-    m_toolbar->setIconSize(QSize(16, 16));
 
     // Bold
     auto* boldAction = m_toolbar->addAction("B");
@@ -646,7 +643,7 @@ void NotesWidget::initToolbar()
 
 void NotesWidget::wrapSelection(const QString& before, const QString& after)
 {
-    QTextCursor cursor = m_textEdit->textCursor();
+    QTextCursor cursor         = m_textEdit->textCursor();
     const QString selectedText = cursor.selectedText();
 
     if (selectedText.isEmpty()) {
@@ -672,44 +669,25 @@ void NotesWidget::insertAtLineStart(const QString& prefix)
     m_textEdit->setFocus();
 }
 
-void NotesWidget::insertBold()
-{
-    wrapSelection("**", "**");
-}
+void NotesWidget::insertBold() { wrapSelection("**", "**"); }
 
-void NotesWidget::insertItalic()
-{
-    wrapSelection("*", "*");
-}
+void NotesWidget::insertItalic() { wrapSelection("*", "*"); }
 
-void NotesWidget::insertStrikethrough()
-{
-    wrapSelection("~~", "~~");
-}
+void NotesWidget::insertStrikethrough() { wrapSelection("~~", "~~"); }
 
-void NotesWidget::insertHeading1()
-{
-    insertAtLineStart("# ");
-}
+void NotesWidget::insertHeading1() { insertAtLineStart("# "); }
 
-void NotesWidget::insertHeading2()
-{
-    insertAtLineStart("## ");
-}
+void NotesWidget::insertHeading2() { insertAtLineStart("## "); }
 
-void NotesWidget::insertHeading3()
-{
-    insertAtLineStart("### ");
-}
+void NotesWidget::insertHeading3() { insertAtLineStart("### "); }
 
 void NotesWidget::insertLink()
 {
-    QTextCursor cursor = m_textEdit->textCursor();
+    QTextCursor cursor         = m_textEdit->textCursor();
     const QString selectedText = cursor.selectedText();
 
     bool ok;
-    const QString url = QInputDialog::getText(this, tr("Insert Link"),
-        tr("URL:"), QLineEdit::Normal, "https://", &ok);
+    const QString url = QInputDialog::getText(this, tr("Insert Link"), tr("URL:"), QLineEdit::Normal, "https://", &ok);
 
     if (ok && !url.isEmpty()) {
         if (selectedText.isEmpty()) {
@@ -725,8 +703,8 @@ void NotesWidget::insertLink()
 void NotesWidget::insertImage()
 {
     bool ok;
-    const QString url = QInputDialog::getText(this, tr("Insert Image"),
-        tr("Image URL:"), QLineEdit::Normal, "https://", &ok);
+    const QString url
+        = QInputDialog::getText(this, tr("Insert Image"), tr("Image URL:"), QLineEdit::Normal, "https://", &ok);
 
     if (ok && !url.isEmpty()) {
         QTextCursor cursor = m_textEdit->textCursor();
@@ -736,14 +714,11 @@ void NotesWidget::insertImage()
     m_textEdit->setFocus();
 }
 
-void NotesWidget::insertInlineCode()
-{
-    wrapSelection("`", "`");
-}
+void NotesWidget::insertInlineCode() { wrapSelection("`", "`"); }
 
 void NotesWidget::insertCodeBlock()
 {
-    QTextCursor cursor = m_textEdit->textCursor();
+    QTextCursor cursor         = m_textEdit->textCursor();
     const QString selectedText = cursor.selectedText();
 
     if (selectedText.isEmpty()) {
@@ -755,25 +730,13 @@ void NotesWidget::insertCodeBlock()
     m_textEdit->setFocus();
 }
 
-void NotesWidget::insertBulletList()
-{
-    insertAtLineStart("- ");
-}
+void NotesWidget::insertBulletList() { insertAtLineStart("- "); }
 
-void NotesWidget::insertNumberedList()
-{
-    insertAtLineStart("1. ");
-}
+void NotesWidget::insertNumberedList() { insertAtLineStart("1. "); }
 
-void NotesWidget::insertCheckbox()
-{
-    insertAtLineStart("- [ ] ");
-}
+void NotesWidget::insertCheckbox() { insertAtLineStart("- [ ] "); }
 
-void NotesWidget::insertQuote()
-{
-    insertAtLineStart("> ");
-}
+void NotesWidget::insertQuote() { insertAtLineStart("> "); }
 
 void NotesWidget::insertHorizontalRule()
 {
